@@ -23,6 +23,8 @@ import {
   Analytics as AnalyticsIcon,
   Settings as SettingsIcon,
   Token as TokenIcon,
+  Pool as PoolIcon,
+  Receipt as TransactionIcon,
   Brightness4 as DarkModeIcon,
   Brightness7 as LightModeIcon,
 } from '@mui/icons-material';
@@ -32,6 +34,8 @@ import Dashboard from './components/Dashboard';
 import AnalyticsPanel from './components/Analytics/AnalyticsPanel';
 import SettingsPanel from './components/Settings/SettingsPanel';
 import TokenManagement from './components/Tokens/TokenManagement';
+import PoolManagement from './components/Pools/PoolManagement';
+import TransactionExplorer from './components/Transactions/TransactionExplorer';
 
 const App: React.FC = () => {
   const [darkMode, setDarkMode] = useState(true);
@@ -106,6 +110,26 @@ const App: React.FC = () => {
         </ListItem>
         <ListItem
           button
+          selected={currentView === 'transactions'}
+          onClick={() => handleNavigation('transactions')}
+        >
+          <ListItemIcon>
+            <TransactionIcon />
+          </ListItemIcon>
+          <ListItemText primary="Transactions" />
+        </ListItem>
+        <ListItem
+          button
+          selected={currentView === 'pools'}
+          onClick={() => handleNavigation('pools')}
+        >
+          <ListItemIcon>
+            <PoolIcon />
+          </ListItemIcon>
+          <ListItemText primary="Pools" />
+        </ListItem>
+        <ListItem
+          button
           selected={currentView === 'tokens'}
           onClick={() => handleNavigation('tokens')}
         >
@@ -114,6 +138,7 @@ const App: React.FC = () => {
           </ListItemIcon>
           <ListItemText primary="Tokens" />
         </ListItem>
+        <Divider sx={{ my: 1 }} />
         <ListItem
           button
           selected={currentView === 'settings'}
@@ -134,6 +159,10 @@ const App: React.FC = () => {
         return <Dashboard />;
       case 'analytics':
         return <AnalyticsPanel />;
+      case 'transactions':
+        return <TransactionExplorer />;
+      case 'pools':
+        return <PoolManagement />;
       case 'tokens':
         return <TokenManagement />;
       case 'settings':
