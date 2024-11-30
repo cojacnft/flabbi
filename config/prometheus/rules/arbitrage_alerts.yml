@@ -1,0 +1,116 @@
+groups:
+  - name: arbitrage_alerts
+    rules:
+      # Profit Alerts
+      - alert: HighProfitOpportunity
+        expr: arbitrage_profit_per_trade_usd > 500
+        for: 1m
+        labels:
+          severity: info
+        annotations:
+          summary: High profit opportunity detected
+          description: "Profit of ${{ $value }} detected"
+
+      - alert: LowProfitRate
+        expr: rate(arbitrage_profit_total_usd[1h]) < 10
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: Low profit rate
+          description: "Profit rate below $10/hour"
+
+      # Gas Alerts
+      - alert: HighGasPrice
+        expr: arbitrage_gas_price_gwei > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High gas price
+          description: "Gas price at {{ $value }} Gwei"
+
+      - alert: CriticalGasPrice
+        expr: arbitrage_gas_price_gwei > 200
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Critical gas price
+          description: "Gas price at {{ $value }} Gwei"
+
+      # Performance Alerts
+      - alert: LowSuccessRate
+        expr: arbitrage_success_rate < 0.8
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: Low success rate
+          description: "Success rate at {{ $value | humanizePercentage }}"
+
+      - alert: HighExecutionTime
+        expr: rate(arbitrage_execution_time_seconds_sum[5m]) / rate(arbitrage_execution_time_seconds_count[5m]) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High execution time
+          description: "Average execution time above 2 seconds"
+
+      # System Alerts
+      - alert: HighCPUUsage
+        expr: arbitrage_cpu_usage_percent > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High CPU usage
+          description: "CPU usage at {{ $value }}%"
+
+      - alert: HighMemoryUsage
+        expr: arbitrage_memory_usage_bytes / 1024 / 1024 / 1024 > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High memory usage
+          description: "Memory usage above 80%"
+
+      # Network Alerts
+      - alert: HighNetworkLatency
+        expr: rate(arbitrage_network_latency_seconds_sum[5m]) / rate(arbitrage_network_latency_seconds_count[5m]) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High network latency
+          description: "Average network latency above 500ms"
+
+      - alert: HighRPCErrorRate
+        expr: rate(arbitrage_rpc_errors_total[5m]) / rate(arbitrage_rpc_requests_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High RPC error rate
+          description: "RPC error rate above 10%"
+
+      # Opportunity Alerts
+      - alert: NoOpportunitiesFound
+        expr: rate(arbitrage_opportunities_found_total[15m]) == 0
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: No opportunities found
+          description: "No arbitrage opportunities found in the last 15 minutes"
+
+      - alert: LowExecutionRate
+        expr: rate(arbitrage_opportunities_executed_total[1h]) / rate(arbitrage_opportunities_found_total[1h]) < 0.1
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: Low execution rate
+          description: "Less than 10% of opportunities being executed"

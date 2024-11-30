@@ -1,0 +1,27 @@
+dependencies:
+  - OpenZeppelin/openzeppelin-contracts@4.9.0
+  - aave/aave-v3-core@1.19.1
+
+compiler:
+  solc:
+    version: 0.8.20
+    optimizer:
+      enabled: true
+      runs: 200
+    remappings:
+      - '@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.9.0'
+      - '@aave=aave/aave-v3-core@1.19.1'
+
+networks:
+  default: development
+  development:
+    verify: False
+  mainnet-fork:
+    verify: False
+  mainnet:
+    verify: True
+
+wallets:
+  from_key: ${PRIVATE_KEY}
+
+dotenv: .env
