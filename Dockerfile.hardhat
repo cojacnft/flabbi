@@ -1,0 +1,25 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install Python and build dependencies
+RUN apk add --no-cache python3 make g++ gcc git
+
+# Copy package files
+COPY package*.json ./
+COPY yarn.lock ./
+
+# Install dependencies
+RUN yarn install --frozen-lockfile
+
+# Copy Hardhat configuration
+COPY hardhat.config.ts ./
+
+# Create contracts directory
+RUN mkdir -p contracts test
+
+# Expose Hardhat node port
+EXPOSE 8545
+
+# Start Hardhat node
+CMD ["npx", "hardhat", "node"]

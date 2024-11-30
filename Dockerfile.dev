@@ -1,0 +1,50 @@
+# Build stage
+FROM node:18-alpine as builder
+
+WORKDIR /app
+
+# Install Python and build dependencies
+RUN apk add --no-cache python3 make g++ gcc git
+
+# Copy package files
+COPY package*.json ./
+COPY yarn.lock ./
+
+# Install dependencies
+RUN yarn install --frozen-lockfile
+
+# Copy source code
+COPY . .
+
+# Build TypeScript
+RUN yarn build
+
+# Development stage
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install runtime dependencies
+RUN apk add --no-cache python3 supervisor
+
+# Copy built files and dependencies
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/config ./config
+
+# Copy supervisor configuration
+COPY deploy/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Create necessary directories
+RUN mkdir -p /app/logs /app/data
+
+# Set environment variables
+ENV NODE_ENV=development
+ENV PORT=3000
+
+# Expose ports
+EXPOSE 3000 9090
+
+# Start supervisor in development mode
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
