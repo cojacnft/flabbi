@@ -1,0 +1,57 @@
+network:
+  rpc_url: ${NETWORK_RPC_URL}
+  ws_url: ${NETWORK_WS_URL}
+  chain_id: 1
+  explorer_url: "https://etherscan.io"
+  explorer_api_key: ${EXPLORER_API_KEY}
+  confirmation_blocks: 1
+
+flash_loan:
+  min_profit_usd: 100.0
+  max_position_size: 50000.0
+  max_slippage: 0.01
+  min_liquidity: 100000.0
+  gas_multiplier: 1.1
+  execution_timeout: 30
+
+mev:
+  enabled: true
+  min_bribe: 0.1
+  max_bribe: 0.3
+  bundle_type: "flashbots"
+  backrun_protection: true
+
+gas:
+  max_gas_price: 200
+  priority_fee: 2
+  base_fee_multiplier: 1.2
+  max_gas_limit: 1000000
+
+monitoring:
+  enabled: true
+  log_level: "INFO"
+  metrics_enabled: true
+  alert_enabled: true
+  discord_webhook: ${DISCORD_WEBHOOK}
+  telegram_bot_token: ${TELEGRAM_BOT_TOKEN}
+  telegram_chat_id: ${TELEGRAM_CHAT_ID}
+
+database:
+  enabled: true
+  url: "sqlite:///data/arbitrage.db"
+  max_entries: 1000000
+  backup_enabled: true
+  backup_interval: 86400
+
+arbitrage_contract: ${ARBITRAGE_CONTRACT}
+
+weth_address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+
+approved_dexes:
+  uniswap_v2: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
+  sushiswap: "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"
+  shibaswap: "0x03f7724180AA6b939894B5Ca4314783B0b36b329"
+
+max_hops: 4
+min_profit_threshold: 0.1
+max_concurrent_trades: 3

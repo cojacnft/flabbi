@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flash Loan Arbitrage Monitor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.css" rel="stylesheet">
+    <style>
+        .card {
+            margin-bottom: 1rem;
+        }
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .alert-container {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">Flash Loan Arbitrage Monitor</span>
+            <span class="navbar-text" id="status-badge">
+                <span class="badge bg-success">Running</span>
+            </span>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-3">
+        <div class="row">
+            <!-- Key Metrics -->
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-header">
+                        Total Profit
+                    </div>
+                    <div class="card-body">
+                        <div class="metric-value" id="total-profit">$0.00</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        Success Rate
+                    </div>
+                    <div class="card-body">
+                        <div class="metric-value" id="success-rate">0%</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        Active Opportunities
+                    </div>
+                    <div class="card-body">
+                        <div class="metric-value" id="active-opportunities">0</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        Gas Price
+                    </div>
+                    <div class="card-body">
+                        <div class="metric-value" id="gas-price">0 gwei</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        Profit History
+                    </div>
+                    <div class="card-body">
+                        <canvas id="profit-chart"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        Network Metrics
+                    </div>
+                    <div class="card-body">
+                        <canvas id="network-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alerts and Status -->
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-header">
+                        System Status
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <td>Uptime</td>
+                                    <td id="uptime">-</td>
+                                </tr>
+                                <tr>
+                                    <td>Total Trades</td>
+                                    <td id="total-trades">0</td>
+                                </tr>
+                                <tr>
+                                    <td>Failed Trades</td>
+                                    <td id="failed-trades">0</td>
+                                </tr>
+                                <tr>
+                                    <td>MEV Prevented</td>
+                                    <td id="mev-prevented">0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        Alerts
+                    </div>
+                    <div class="card-body alert-container" id="alerts">
+                        <!-- Alerts will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script src="/static/dashboard.js"></script>
+</body>
+</html>
