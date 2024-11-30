@@ -1,0 +1,177 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: custom-metrics-adapter
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: custom-metrics-adapter
+  template:
+    metadata:
+      labels:
+        app: custom-metrics-adapter
+    spec:
+      serviceAccountName: custom-metrics-adapter
+      containers:
+      - name: custom-metrics-adapter
+        image: directxman12/k8s-prometheus-adapter:v0.9.1
+        args:
+        - --secure-port=6443
+        - --tls-cert-file=/var/run/serving-cert/serving.crt
+        - --tls-private-key-file=/var/run/serving-cert/serving.key
+        - --logtostderr=true
+        - --prometheus-url=http://prometheus-service.monitoring.svc:9090/
+        - --metrics-relist-interval=30s
+        - --v=4
+        - --config=/etc/adapter/config.yaml
+        ports:
+        - containerPort: 6443
+        volumeMounts:
+        - name: volume-serving-cert
+          mountPath: /var/run/serving-cert
+          readOnly: true
+        - name: config
+          mountPath: /etc/adapter/
+          readOnly: true
+      volumes:
+      - name: volume-serving-cert
+        secret:
+          secretName: custom-metrics-adapter-serving-certs
+      - name: config
+        configMap:
+          name: custom-metrics-adapter-config
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: custom-metrics-adapter-config
+  namespace: monitoring
+data:
+  config.yaml: |
+    rules:
+    # Flash loan execution metrics
+    - seriesQuery: 'execution_queue_length{namespace!="",pod!=""}'
+      resources:
+        overrides:
+          namespace:
+            resource: namespace
+          pod:
+            resource: pod
+      name:
+        matches: "execution_queue_length"
+      metricsQuery: 'avg(execution_queue_length{<<.LabelMatchers>>}) by (<<.GroupBy>>)'
+
+    # Active opportunities metrics
+    - seriesQuery: 'active_opportunities{namespace!="",pod!=""}'
+      resources:
+        overrides:
+          namespace:
+            resource: namespace
+          pod:
+            resource: pod
+      name:
+        matches: "active_opportunities"
+      metricsQuery: 'avg(active_opportunities{<<.LabelMatchers>>}) by (<<.GroupBy>>)'
+
+    # Network load metrics
+    - seriesQuery: 'network_load{namespace!="",pod!=""}'
+      resources:
+        overrides:
+          namespace:
+            resource: namespace
+          pod:
+            resource: pod
+      name:
+        matches: "network_load"
+      metricsQuery: 'avg(network_load{<<.LabelMatchers>>}) by (<<.GroupBy>>)'
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: custom-metrics-adapter
+  namespace: monitoring
+spec:
+  ports:
+  - port: 443
+    targetPort: 6443
+  selector:
+    app: custom-metrics-adapter
+
+---
+apiVersion: apiregistration.k8s.io/v1
+kind: APIService
+metadata:
+  name: v1beta1.custom.metrics.k8s.io
+spec:
+  service:
+    name: custom-metrics-adapter
+    namespace: monitoring
+  group: custom.metrics.k8s.io
+  version: v1beta1
+  insecureSkipTLSVerify: true
+  groupPriorityMinimum: 100
+  versionPriority: 100
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: custom-metrics:system:auth-delegator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+subjects:
+- kind: ServiceAccount
+  name: custom-metrics-adapter
+  namespace: monitoring
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: custom-metrics-auth-reader
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: extension-apiserver-authentication-reader
+subjects:
+- kind: ServiceAccount
+  name: custom-metrics-adapter
+  namespace: monitoring
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: custom-metrics-resource-reader
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  - pods
+  - services
+  verbs:
+  - get
+  - list
+  - watch
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: custom-metrics-resource-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: custom-metrics-resource-reader
+subjects:
+- kind: ServiceAccount
+  name: custom-metrics-adapter
+  namespace: monitoring

@@ -1,0 +1,76 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: flashloan-arbitrage-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: flashloan-arbitrage
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    # CPU-based scaling
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    
+    # Memory-based scaling
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+    
+    # Custom metrics scaling
+    - type: Pods
+      pods:
+        metric:
+          name: execution_queue_length
+        target:
+          type: AverageValue
+          averageValue: 10
+    
+    - type: Pods
+      pods:
+        metric:
+          name: active_opportunities
+        target:
+          type: AverageValue
+          averageValue: 5
+    
+    # External metrics scaling
+    - type: External
+      external:
+        metric:
+          name: network_load
+        target:
+          type: Value
+          value: 80
+
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Pods
+        value: 2
+        periodSeconds: 60
+      - type: Percent
+        value: 100
+        periodSeconds: 60
+      selectPolicy: Max
+    
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Pods
+        value: 1
+        periodSeconds: 120
+      - type: Percent
+        value: 20
+        periodSeconds: 120
+      selectPolicy: Min
