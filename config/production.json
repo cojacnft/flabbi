@@ -1,0 +1,32 @@
+{
+  "environment": "production",
+  "logLevel": "info",
+  "execution": {
+    "interval": 500,
+    "maxConcurrentPerChain": 2,
+    "minProfitUSD": 200
+  },
+  "monitoring": {
+    "alerting": {
+      "email": {
+        "enabled": true
+      },
+      "telegram": {
+        "enabled": true
+      }
+    },
+    "thresholds": {
+      "errorRate": 0.05,
+      "successRate": 0.9,
+      "minProfitUSD": 2000
+    }
+  },
+  "security": {
+    "maxSlippage": 0.01,
+    "maxPositionSizeUSD": 200000,
+    "circuitBreaker": {
+      "errorThreshold": 3,
+      "timeWindowMs": 30000
+    }
+  }
+}
